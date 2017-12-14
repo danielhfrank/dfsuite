@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+
+if [ "$#" -lt 1 ]; then
+    echo "Usage: dfbzl (test|build) [target]"
+    exit 1
+fi
+
+BZL_CMD=$1
+
+function select_target() {
+    if [ "$#" -lt 2 ]; then
+        if [ "$BZL_CMD" = "test" ]; then
+            BZL_TARGET=$(bazel query 'kind(test, ...)' | \
+                fzf --height=25% --reverse | tr -d '\n' | pbcopy && pbpaste)
+        else
+            # assume build
+            BZL_TARGET=$(bazel query 'kind(scala_library, ...)' | egrep -v '\.scala$' | grep -v 3rd | \
+                fzf --height=25% --reverse | tr -d '\n' | pbcopy && pbpaste)
+        fi
+    else
+        BZL_TARGET=$2
+    fi
+}
+
+
+select_target "$@"
+
+if [ "$BZL_CMD" = "test" ]; then
+    bazel test --test_output errors $BZL_TARGET
+else
+    bazel build $BZL_TARGET
+fi
