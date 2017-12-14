@@ -26,6 +26,10 @@ function select_target() {
 
 select_target "$@"
 
+if [ "$BZL_TARGET" = "" ]; then
+    exit 1
+fi
+
 if [ "$BZL_CMD" = "test" ]; then
     bazel test --test_output errors $BZL_TARGET
 else
