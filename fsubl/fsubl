@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+OPEN_TARGET=$(ag -l "$@" | egrep -v "^3rdparty" | fzf --height=25% --reverse)
+
+if [ "$OPEN_TARGET" = "" ]; then
+    exit 1
+fi
+
+subl $OPEN_TARGET
