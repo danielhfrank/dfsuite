@@ -30,8 +30,21 @@ if [ "$BZL_TARGET" = "" ]; then
     exit 1
 fi
 
+if which dawg-client > /dev/null; then
+    DAWG_ENABLED=true
+fi
+
 if [ "$BZL_CMD" = "test" ]; then
-    bazel test --test_output errors $BZL_TARGET
+    bazel test --test_output errors "$BZL_TARGET"
 else
-    bazel build $BZL_TARGET
+    bazel build "$BZL_TARGET"
+fi
+BZL_SUCCESS=$?
+
+if [ "$DAWG_ENABLED" = true ]; then
+    if [ $BZL_SUCCESS = 0 ]; then
+        dawg-client "Bazel $BZL_CMD passed ✅"
+    else
+        dawg-client "Bazel $BZL_CMD failed 🚨"
+    fi
 fi
