@@ -1,0 +1,1 @@
+git checkout $(git recent-branches | fzf --height=25% --reverse --ansi | awk '{print $1}')

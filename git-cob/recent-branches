@@ -1,0 +1,36 @@
+#!/usr/bin/env python
+
+import os
+import functools
+import warnings
+import datetime
+
+from tabulate import tabulate
+from termcolor import colored
+
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    import pygit2
+
+def get_head_time(repo, br_name):
+    # TODO incorporate offsets
+    return repo.lookup_branch(br_name).peel().commit_time
+
+def format_head_time(head_time):
+    dt_obj = datetime.datetime.fromtimestamp(head_time)
+    time_str = dt_obj.strftime('%Y-%m-%d')
+    return colored(time_str, 'blue')
+
+def main():
+    repo = pygit2.Repository(os.getcwd())
+    sorted_names = sorted(repo.listall_branches(),
+        key=functools.partial(get_head_time, repo), reverse=True)
+    sorted_pairs = zip(sorted_names, map(
+        lambda br_name: format_head_time(get_head_time(repo, br_name)),
+        sorted_names
+        ))
+    return sorted_pairs
+
+if __name__ == '__main__':
+    sorted_pairs = main()
+    print tabulate(sorted_pairs, tablefmt='plain')
