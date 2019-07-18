@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-"$(dirname "$BASH_SOURCE")/nosetest-targets" | fzf --height=25% --reverse | pbcopy
+"$(dirname $(realpath "$BASH_SOURCE"))/nosetest-targets" | fzf --height=25% --reverse | tr -d '\n'  | pbcopy
