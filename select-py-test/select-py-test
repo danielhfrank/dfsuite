@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+"$(dirname "$BASH_SOURCE")/nosetest-targets" | fzf --height=25% --reverse | pbcopy

@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+
+import re
+from subprocess import check_output as co
+from typing import Generator, Pattern, Match
+
+from signal import signal, SIGPIPE, SIG_DFL
+signal(SIGPIPE, SIG_DFL)
+
+
+def main() -> Generator[str, None, None]:
+    test_fn_re = r'def (test_\w+)'
+    grep_output_re: Pattern = re.compile(rf'([\w/]+)\.py:{test_fn_re}')
+
+    grep_outputs = co(['git', 'grep', '-P', test_fn_re], universal_newlines=True).split('\n')
+    matches = (grep_output_re.match(l) for l in grep_outputs)
+    return (fmt_match(x) for x in matches if x is not None)
+
+
+def fmt_match(x: Match) -> str:
+    path_without_extn, test_fn = x.groups()
+    return f"{path_without_extn.replace('/', '.')}:{test_fn}"
+
+
+if __name__ == "__main__":
+    for test_target in main():
+        print(test_target)
