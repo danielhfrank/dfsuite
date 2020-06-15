@@ -13,31 +13,34 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     import pygit2
 
+
 def get_head_time(repo, br_name):
     # TODO incorporate offsets
     return repo.lookup_branch(br_name).peel().commit_time
+
 
 def format_head_time(head_time):
     dt_obj = datetime.datetime.fromtimestamp(head_time)
     time_str = dt_obj.strftime('%Y-%m-%d')
     return colored(time_str, 'blue')
 
+
 def main(n):
     repo = pygit2.Repository(os.getcwd())
     sorted_names = sorted(repo.listall_branches(),
-        key=functools.partial(get_head_time, repo), reverse=True)
-    sorted_pairs = zip(sorted_names, map(
-        lambda br_name: format_head_time(get_head_time(repo, br_name)),
-        sorted_names
-        ))
+                          key=functools.partial(get_head_time, repo), reverse=True)
+    sorted_pairs = list(zip(sorted_names, [format_head_time(
+        get_head_time(repo, br_name)) for br_name in sorted_names]))
     limit = len(sorted_pairs) if n is None else n
     return sorted_pairs[:limit]
 
+
 if __name__ == '__main__':
     parser = ArgumentParser()
-    parser.add_argument('-n', help="Number of rows to return", default=10, type=int)
+    parser.add_argument(
+        '-n', help="Number of rows to return", default=10, type=int)
     parser.add_argument('--no-limit', action='store_true')
     args = parser.parse_args()
     n = None if args.no_limit else args.n
     sorted_pairs = main(n)
-    print tabulate(sorted_pairs, tablefmt='plain')
+    print(tabulate(sorted_pairs, tablefmt='plain'))
