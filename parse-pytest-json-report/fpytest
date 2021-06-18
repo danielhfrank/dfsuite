@@ -4,4 +4,20 @@ PYTEST_ARGS="-n0 -s"
 
 THIS_DIR=$(dirname $(realpath $0))
 
-pytest $PYTEST_ARGS "$(python $THIS_DIR/parse_pytest_json_report.py .report.json | fzf)"
+function select_target() {
+    if [ "$#" -lt 1 ]; then
+        PYTEST_TARGET=$(python $THIS_DIR/parse_pytest_json_report.py .report.json | fzf \
+            | pbcopy && pbpaste)
+    else
+        PYTEST_TARGET=$1
+    fi
+
+}
+
+select_target "$@"
+
+if [ "$PYTEST_TARGET" = "" ]; then
+    exit 1
+fi
+
+pytest $PYTEST_ARGS "$PYTEST_TARGET"
