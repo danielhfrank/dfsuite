@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+PYTEST_ARGS="-n0 -s"
+
+THIS_DIR=$(dirname $(realpath $0))
+
+pytest $PYTEST_ARGS "$(python $THIS_DIR/parse_pytest_json_report.py .report.json | fzf)"
