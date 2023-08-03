@@ -7,7 +7,7 @@ THIS_DIR=$(dirname $(realpath $0))
 function select_target() {
     if [ "$#" -lt 1 ]; then
         PYTEST_TARGET=$(python $THIS_DIR/parse_pytest_json_report.py .report.json | fzf \
-            | pbcopy && pbpaste)
+            | tr -d '\n' | pbcopy && pbpaste)
     else
         PYTEST_TARGET=$1
     fi
